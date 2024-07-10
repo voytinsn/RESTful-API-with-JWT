@@ -1,0 +1,7 @@
+ТЗ.odt
+.~lock.ТЗ.odt#
+plan.txt
+node_modules/
+dist/*
+!dist/.gitignore
+.env
