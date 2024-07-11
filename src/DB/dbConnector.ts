@@ -1,5 +1,5 @@
 import { Client, Configuration, connect, ResultRecord } from "ts-postgres";
-import { UsersModel } from "./models/UsersModel";
+import { UsersModel } from "./models/usersModel";
 
 /**
  * Обеспечивает доступ к БД
@@ -31,7 +31,6 @@ class DbConnector {
 
   constructor(configuration: Configuration) {
     this.Configuration = configuration;
-    this.initTables();
   }
 
   async initTables(): Promise<void> {

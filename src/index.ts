@@ -1,8 +1,12 @@
 import "dotenv/config";
-import express, { Express, Request, Response } from "express";
+import express, { Express } from "express";
 import bodyParser from "body-parser";
 import usersRouter from "./routers/usersRouter";
+import DbConnector from "./DB/dbConnector";
 const morgan = require("morgan");
+
+// Создание таблиц в БД, если их нет
+DbConnector.instance.initTables();
 
 
 const app: Express = express();

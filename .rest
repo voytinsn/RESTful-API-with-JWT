@@ -7,3 +7,14 @@ Content-Type: application/json
     "username": "test_user",
     "password": "Aa123456"
 }
+
+###
+
+POST http://localhost:3000/users/register
+Content-Type: application/json
+
+{
+    "username": "test_user",
+    "password": "Aa123456",
+    "email": "example@yandex.ru"
+}
