@@ -13,13 +13,9 @@ export class UsersModel {
    * Находит в БД пользователя по его username
    *
    * @param username
-   * @param dbConnector
    */
-  static async getByUsername(
-    username: string,
-    dbConnector: DbConnector
-  ): Promise<User | null> {
-    const rows: User[] = await dbConnector.executeQuery<User>(`
+  static async getByUsername(username: string): Promise<User | null> {
+    const rows: User[] = await DbConnector.instance.executeQuery<User>(`
             select *
             from ${UsersModel.tableName}
             where username = '${username}'
@@ -31,5 +27,22 @@ export class UsersModel {
     } else {
       return null;
     }
+  }
+
+  /**
+   * Создает таблицу users
+   */
+  static async initTable() {
+    const query: string = `
+      CREATE TABLE "${this.tableName}" (
+        "id" serial NOT NULL,
+        PRIMARY KEY ("id"),
+        "username" character varying(64) NOT NULL,
+        "password" character(64) NOT NULL
+      );
+    `;
+
+    DbConnector.instance.executeNonQuery(query);
+    console.log("table users created");
   }
 }
