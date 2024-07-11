@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { User } from "../DB/models/usersModel";
 import { UsersModel } from "../DB/models/usersModel";
 import { createSHA256Hash } from "../services/cryptoHelper";
-import { generateJWT } from "../services/jwt";
+import { generateJWT, UserJwtPayload} from "../services/jwt";
 
 /**
  * Эндпоинт для авторизации
@@ -99,4 +99,38 @@ const register = (req: Request, res: Response) => {
   checkIbDb(newUser).then(addUser).then(respond).catch(onError);
 };
 
-export default { login, register };
+/**
+ * Эндпоинт для получения данных текущего пользователя
+ * 
+ * @param req 
+ * @param res 
+ */
+const me = async (req: Request, res: Response) => {
+
+  // Получение декодированного jwt
+  const userJwtPayload: UserJwtPayload = res.app.get("jwt");
+
+  // Определение даты и времени истечения токена
+  const expireDate = new Date(userJwtPayload.exp! * 1000);
+
+  /**
+   * Извлечение из БД данных о пользователе.
+   * Данные из jwt не используются чтобы гарантировать актуальность
+   */
+  const dbUser: User | null = await UsersModel.getByUsername(userJwtPayload.username);
+
+  if (dbUser) {
+    res.json({
+      id: dbUser.id,
+      username: dbUser.username,
+      email: dbUser.email,
+      jwtExpireDate: expireDate
+    });
+  } else {
+    res.status(404);
+  }
+
+
+};
+
+export default { login, register, me };

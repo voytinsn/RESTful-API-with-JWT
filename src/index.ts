@@ -12,7 +12,6 @@ DbConnector.instance.initTables();
 const app: Express = express();
 app.use(bodyParser.json());
 app.use(morgan("dev"));
-app.set("jwt_secret", process.env.JWT_SECRET);
 
 app.use("/users", usersRouter);
 
