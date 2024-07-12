@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { User, UsersModel } from "../DB/models/usersModel";
 import { createSHA256Hash } from "../services/cryptoHelper";
 import { generateJWT, UserJwtPayload } from "../services/jwt";
-import { roleAdmin }  from "../rights";
+import { roleAdmin, RolesMap } from "../rights";
 
 /**
  * Эндпоинт для авторизации
@@ -142,4 +142,72 @@ const me = async (req: Request, res: Response) => {
   }
 };
 
-export default { login, register, me };
+/**
+ * Эндпоинт для обновления роли сотрудника в БД
+ *
+ * @param req
+ * @param res
+ */
+const updateRole = (req: Request, res: Response) => {
+  const id: number = Number(req.params["id"]);
+  const { role } = req.body;
+
+  const validate = async () => {
+    res.status(400);
+
+    if (isNaN(id) || id < 1) {
+      throw new Error("Invalid id");
+    } else if (!role) {
+      throw new Error("role is not specified");
+    } else if (!RolesMap.hasOwnProperty(role)) {
+      throw new Error("Invalid role");
+    } else {
+      res.status(200);
+    }
+  };
+
+  const getDbUser = async (): Promise<User> => {
+    const user: User | null = await UsersModel.getById(id);
+
+    if (!user) {
+      res.status(404);
+      throw new Error("User with specified id was not found");
+    }
+
+    return user;
+  };
+
+  const changeRole = (user: User): User => {
+    user.role = role;
+    return user;
+  };
+
+  const updateUserInDb = async (user: User): Promise<User> => {
+    UsersModel.updateUser(user);
+    return user;
+  };
+
+  const respond = (user: User) => {
+    delete user.password;
+    res.json(user);
+  };
+
+  const onError = (error: Error) => {
+    if (res.statusCode == 200) {
+      res.status(500);
+    }
+
+    res.json({
+      message: error.message,
+    });
+  };
+
+  validate()
+    .then(getDbUser)
+    .then(changeRole)
+    .then(updateUserInDb)
+    .then(respond)
+    .catch(onError);
+};
+
+export default { login, register, me, updateRole };

@@ -25,8 +25,7 @@ export const requireCreateRights = (
     return next();
   }
 
-  const decodedJwt: UserJwtPayload = req.app.get("jwt");
-  const role: keyof RolesMap = decodedJwt.role;
+  const role: keyof RolesMap = req.app.get("userRole") as keyof RolesMap;
 
   if (!(RolesMap[role] & RightsBitmask.CREATE)) {
     return res.status(403).json({ message: "Access denied" });
@@ -56,8 +55,7 @@ export const requireUpdateRights = (
     return next();
   }
 
-  const decodedJwt: UserJwtPayload = req.app.get("jwt");
-  const role: keyof RolesMap = decodedJwt.role;
+  const role: keyof RolesMap = req.app.get("userRole") as keyof RolesMap;
 
   if (!(RolesMap[role] & RightsBitmask.UPDATE)) {
     return res.status(403).json({ message: "Access denied" });
@@ -87,8 +85,7 @@ export const requireDeleteRights = (
     return next();
   }
 
-  const decodedJwt: UserJwtPayload = req.app.get("jwt");
-  const role: keyof RolesMap = decodedJwt.role;
+  const role: keyof RolesMap = req.app.get("userRole") as keyof RolesMap;
 
   if (!(RolesMap[role] & RightsBitmask.DELETE)) {
     return res.status(403).json({ message: "Access denied" });

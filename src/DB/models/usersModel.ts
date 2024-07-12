@@ -14,6 +14,25 @@ export class UsersModel {
   static tableName: string = "users";
 
   /**
+   * Создает таблицу users
+   */
+  static async initTable() {
+    const query: string = `
+        CREATE TABLE "${this.tableName}" (
+          "id"       serial NOT NULL,
+          "username" character varying(64) NOT NULL,
+          "password" character(64) NOT NULL,
+          "email"    character varying(128) NOT NULL,
+          "role"     character varying(10) NOT NULL,
+          PRIMARY KEY ("id")
+        );
+      `;
+
+    DbConnector.instance.executeNonQuery(query);
+    console.log(`table "${this.tableName}" created`);
+  }
+
+  /**
    * Находит в БД пользователя по его username
    *
    * @param username
@@ -82,21 +101,19 @@ export class UsersModel {
   }
 
   /**
-   * Создает таблицу users
+   * Обновляет запись о пользователе в БД, не затрагивает пароль
+   *
+   * @param book
    */
-  static async initTable() {
+  static async updateUser(user: User): Promise<void> {
     const query: string = `
-      CREATE TABLE "${this.tableName}" (
-        "id"       serial NOT NULL,
-        "username" character varying(64) NOT NULL,
-        "password" character(64) NOT NULL,
-        "email"    character varying(128) NOT NULL,
-        "role"     character varying(10) NOT NULL,
-        PRIMARY KEY ("id")
-      );
+      UPDATE "${this.tableName}" 
+      SET username='${user.username}',
+          email='${user.email}',
+          role='${user.role}'
+      WHERE id = ${user.id};
     `;
 
-    DbConnector.instance.executeNonQuery(query);
-    console.log(`table "${this.tableName}" created`);
+    return await DbConnector.instance.executeNonQuery(query);
   }
 }
