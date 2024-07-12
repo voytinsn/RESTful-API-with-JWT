@@ -2,6 +2,17 @@ import { Request, Response } from "express";
 import { Book, BooksModel } from "../DB/models/booksModel";
 
 /**
+ * Проверяет валидность даты
+ * 
+ * @param dateString 
+ * @returns 
+ */
+function isDateValid(dateString: string): boolean {
+  const date = new Date(dateString);
+  return !isNaN(date.getTime());
+}
+
+/**
  * Эндпоинт для добавления книги
  *
  * @param req
@@ -16,6 +27,11 @@ const add = (req: Request, res: Response) => {
     if (!title || !author || !genres) {
       res.status(400);
       throw new Error("Title, author or genres is not specified");
+    }
+
+    if (publicationDate && !isDateValid(publicationDate)) {
+      res.status(400);
+      throw new Error("Invalid publicationDate value");
     }
   };
 
@@ -57,7 +73,7 @@ const add = (req: Request, res: Response) => {
   const book: Book = {
     title: title,
     author: author,
-    publicationDate: new Date(publicationDate),
+    publicationDate: publicationDate ? new Date(publicationDate) : null,
     genres: genres,
   };
 
@@ -68,4 +84,28 @@ const add = (req: Request, res: Response) => {
     .catch(onError);
 };
 
-export default { add };
+/**
+ * Эндпоинт для получения списка книг
+ * 
+ * @param req 
+ * @param res 
+ */
+const getAll = async (req: Request, res: Response) => {
+  const respond = (books: Book[]) => {
+    res.json(books);
+  };
+
+  const onError = (error: Error) => {
+    if (res.statusCode == 200) {
+      res.status(500);
+    }
+
+    res.json({
+      message: error.message,
+    });
+  };
+
+  BooksModel.getAll().then(respond).catch(onError);
+};
+
+export default { add, getAll };

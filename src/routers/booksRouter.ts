@@ -14,4 +14,6 @@ router.use("/", (req: Request, res: Response, next: NextFunction) => {
 });
 router.post("/", controller.add);
 
+router.get("/", controller.getAll);
+
 export default router;

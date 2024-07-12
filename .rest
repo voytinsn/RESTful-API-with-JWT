@@ -37,3 +37,7 @@ Authorization: Bearer <token>
     "publicationDate": "1867-01-01", 
     "genres": [ "Роман", "Историческая проза", "Исторический жанр"]
 }
+
+###
+
+GET http://localhost:3000/books
