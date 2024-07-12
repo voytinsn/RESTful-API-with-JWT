@@ -19,7 +19,7 @@ export class UsersModel {
   static async getByUsername(username: string): Promise<User | null> {
     const query: string = `
       select *
-      from ${UsersModel.tableName}
+      from ${this.tableName}
       where username = '${username}'
       limit 1
     `;
@@ -74,6 +74,6 @@ export class UsersModel {
     `;
 
     DbConnector.instance.executeNonQuery(query);
-    console.log("table users created");
+    console.log(`table "${this.tableName}" created`);
   }
 }

@@ -1,5 +1,6 @@
 import { Client, Configuration, connect, ResultRecord } from "ts-postgres";
 import { UsersModel } from "./models/usersModel";
+import { BooksModel } from "./models/booksModel";
 
 /**
  * Обеспечивает доступ к БД
@@ -38,6 +39,12 @@ class DbConnector {
       UsersModel.initTable();
     } else {
       console.log(`table "${UsersModel.tableName}" already exists`);
+    }
+
+    if (!(await this.checkTableExists(BooksModel.tableName))) {
+      BooksModel.initTable();
+    } else {
+      console.log(`table "${BooksModel.tableName}" already exists`);
     }
   }
 

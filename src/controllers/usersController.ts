@@ -1,15 +1,14 @@
 import { Request, Response } from "express";
-import { User } from "../DB/models/usersModel";
-import { UsersModel } from "../DB/models/usersModel";
+import { User, UsersModel } from "../DB/models/usersModel";
 import { createSHA256Hash } from "../services/cryptoHelper";
-import { generateJWT, UserJwtPayload} from "../services/jwt";
+import { generateJWT, UserJwtPayload } from "../services/jwt";
 
 /**
  * Эндпоинт для авторизации
- * 
- * @param req 
- * @param res 
- * @returns 
+ *
+ * @param req
+ * @param res
+ * @returns
  */
 const login = (req: Request, res: Response) => {
   const { username, password } = req.body;
@@ -48,17 +47,21 @@ const login = (req: Request, res: Response) => {
 
 /**
  * Эндпоинт для регистрации нового пользователя
- * 
- * @param req 
- * @param res 
- * @returns 
+ *
+ * @param req
+ * @param res
+ * @returns
  */
 const register = (req: Request, res: Response) => {
   const { username, password, email } = req.body;
 
-  if (!username || !password || !email) {
-    return res.status(400).send("Username, password or email is not specified");
-  }
+  // Проверяет отправленные клиентом данные
+  const validate = async () => {
+    if (!username || !password || !email) {
+      res.status(400);
+      throw new Error("Username, password or email is not specified");
+    }
+  };
 
   // Вызовет исключение, если пользователь с таким username уже существует
   const checkIbDb = async (newUser: User): Promise<User> => {
@@ -80,7 +83,7 @@ const register = (req: Request, res: Response) => {
   // Отправляет клиенту данные созданного пользователя без хеша пароля
   const respond = (newUser: User) => {
     delete newUser.password;
-    res.json(newUser);
+    res.status(201).json(newUser);
   };
 
   // Отвечает клиенту в случае возникновения ошибки
@@ -96,17 +99,20 @@ const register = (req: Request, res: Response) => {
     email: email,
   };
 
-  checkIbDb(newUser).then(addUser).then(respond).catch(onError);
+  validate()
+    .then(() => checkIbDb(newUser))
+    .then(addUser)
+    .then(respond)
+    .catch(onError);
 };
 
 /**
  * Эндпоинт для получения данных текущего пользователя
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const me = async (req: Request, res: Response) => {
-
   // Получение декодированного jwt
   const userJwtPayload: UserJwtPayload = res.app.get("jwt");
 
@@ -117,20 +123,20 @@ const me = async (req: Request, res: Response) => {
    * Извлечение из БД данных о пользователе.
    * Данные из jwt не используются чтобы гарантировать актуальность
    */
-  const dbUser: User | null = await UsersModel.getByUsername(userJwtPayload.username);
+  const dbUser: User | null = await UsersModel.getByUsername(
+    userJwtPayload.username
+  );
 
   if (dbUser) {
     res.json({
       id: dbUser.id,
       username: dbUser.username,
       email: dbUser.email,
-      jwtExpireDate: expireDate
+      jwtExpireDate: expireDate,
     });
   } else {
     res.status(404);
   }
-
-
 };
 
 export default { login, register, me };

@@ -7,12 +7,13 @@ const authTypeBearer = "Bearer";
 /**
  * Прерывает обработку запроса, если не передан валидный jwt
  * в заголовке authorization
- * 
- * @param req 
- * @param res 
- * @param next 
+ *
+ * @param req
+ * @param res
+ * @param next
  */
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  console.log("authMiddleware invoked");
   const authHeader = req.headers["authorization"];
   console.log("authHeader", authHeader);
 
@@ -23,6 +24,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     });
   }
 
+  // Разделение строки заголовка на массив ["Bearer", {token}]
   const authHeaderParts = authHeader.split(" ");
 
   if (authHeaderParts[0] !== authTypeBearer || !authHeaderParts[1]) {
@@ -36,7 +38,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   verifyJWT(jwt)
     .then((decoded: UserJwtPayload) => {
       console.log("decoded jwt:", decoded);
-      req.app.set("jwt", decoded)
+      req.app.set("jwt", decoded);
       next();
     })
     .catch((err: VerifyErrors) => {
