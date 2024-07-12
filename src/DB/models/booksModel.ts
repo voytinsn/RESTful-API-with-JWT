@@ -87,6 +87,21 @@ export class BooksModel {
   }
 
   /**
+   * Удаляет из БД запись о книге по id
+   *
+   * @param id
+   * @returns
+   */
+  static async deleteById(id: number): Promise<void> {
+    const query: string = `
+      DELETE FROM "${this.tableName}" 
+      WHERE id = ${id};
+    `;
+
+    return await DbConnector.instance.executeNonQuery(query);
+  }
+
+  /**
    * Получает все книги из БД
    *
    * @returns

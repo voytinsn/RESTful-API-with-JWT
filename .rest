@@ -58,3 +58,8 @@ Authorization: Bearer <token>
     "publicationDate": "1867-01-01", 
     "genres": [ "Роман", "Историческая проза", "Исторический жанр"]
 }
+
+###
+
+DELETE http://localhost:3000/books/1
+Authorization: Bearer <token>

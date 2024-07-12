@@ -225,4 +225,50 @@ const update = (req: Request, res: Response) => {
     .catch(onError);
 };
 
-export default { add, getAll, getById, update };
+/**
+ * Эндпоинт для удаления книги по id
+ *
+ * @param req
+ * @param res
+ */
+const deleteById = (req: Request, res: Response) => {
+  const id: number = Number(req.params["id"]);
+
+  const validate = async () => {
+    if (isNaN(id) || id < 1) {
+      res.status(400);
+      throw new Error("Wrong id");
+    }
+  };
+
+  const checkInDb = async () => {
+    const book: Book | null = await BooksModel.getById(id);
+
+    if (!book) {
+      res.status(404);
+      throw new Error("Book with specified id was not found");
+    }
+  };
+
+  const respond = () => {
+    res.json({ success: true });
+  };
+
+  const onError = (error: Error) => {
+    if (res.statusCode == 200) {
+      res.status(500);
+    }
+
+    res.json({
+      message: error.message,
+    });
+  };
+
+  validate()
+    .then(checkInDb)
+    .then(() => BooksModel.deleteById(id))
+    .then(respond)
+    .catch(onError);
+};
+
+export default { add, getAll, getById, update, deleteById };
