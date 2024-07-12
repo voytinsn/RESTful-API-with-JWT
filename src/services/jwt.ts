@@ -1,5 +1,6 @@
 import { sign, verify, JwtPayload } from "jsonwebtoken";
 import { User } from "../DB/models/usersModel";
+import { RolesMap } from "../rights";
 
 const secret: string = process.env.JWT_SECRET!;
 
@@ -16,6 +17,7 @@ export const generateJWT = (user: User): Promise<string> => {
         id: user.id,
         username: user.username,
         email: user.email,
+        role: user.role,
       },
       secret,
       {
@@ -38,10 +40,14 @@ export const generateJWT = (user: User): Promise<string> => {
  * @param token
  * @returns декодированный токен
  */
-export const verifyJWT = (token: string): Promise<UserJwtPayload> => {
+export const decodeJwt = (token: string): Promise<UserJwtPayload> => {
   const p = new Promise<UserJwtPayload>((resolve, reject) => {
     verify(token, secret, (err, decoded) => {
-      if (err) reject(err);
+      if (err) {
+        console.log("JWT validation error:", err.message);
+        reject(err);
+      }
+      console.log("decoded JWT: ", decoded);
       resolve(decoded as UserJwtPayload);
     });
   });
@@ -52,4 +58,5 @@ export interface UserJwtPayload extends JwtPayload {
   id: number;
   username: string;
   mail: string;
+  role: keyof RolesMap;
 }

@@ -1,11 +1,13 @@
 import DbConnector from "../dbConnector";
 import { createSHA256Hash } from "../../services/cryptoHelper";
+import { roleAdmin } from "../../rights";
 
 export type User = {
   id?: number;
   username: string;
   password?: string;
   email: string;
+  role: string;
 };
 
 export class UsersModel {
@@ -33,6 +35,27 @@ export class UsersModel {
   }
 
   /**
+   * Находит в БД пользователя по id
+   *
+   * @param username
+   */
+  static async getById(id: number): Promise<User | null> {
+    const query: string = `
+        select *
+        from ${this.tableName}
+        where id = ${id}
+      `;
+
+    const rows: User[] = await DbConnector.instance.executeQuery<User>(query);
+
+    if (rows.length === 1) {
+      return rows[0];
+    } else {
+      return null;
+    }
+  }
+
+  /**
    * Создает в БД запись о пользователе
    *
    * @param user
@@ -46,8 +69,8 @@ export class UsersModel {
     const passHash = createSHA256Hash(user.password);
 
     const query: string = `
-      INSERT INTO "users" ("username", "password", "email")
-      VALUES ('${user.username}', '${passHash}', '${user.email}')
+      INSERT INTO "users" ("username", "password", "email", "role")
+      VALUES ('${user.username}', '${passHash}', '${user.email}', '${roleAdmin}')
       RETURNING id;
     `;
 
@@ -68,6 +91,7 @@ export class UsersModel {
         "username" character varying(64) NOT NULL,
         "password" character(64) NOT NULL,
         "email"    character varying(128) NOT NULL,
+        "role"     character varying(10) NOT NULL,
         PRIMARY KEY ("id")
       );
     `;

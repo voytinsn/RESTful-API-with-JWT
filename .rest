@@ -22,14 +22,14 @@ Content-Type: application/json
 ###
 
 GET http://localhost:3000/users/me
-Authorization: Bearer <token>
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJ0ZXN0X3VzZXIiLCJlbWFpbCI6ImV4YW1wbGVAeWFuZGV4LnJ1Iiwicm9sZSI6InJlYWRlciIsImlhdCI6MTcyMDc3NDU4MSwiZXhwIjoxNzIwODYwOTgxLCJzdWIiOiJ1c2VySW5mbyJ9.Rh4Mx43EcFRcvIgBWnA_Z3cmr5PQRufC1xi1u-546ng
 
 
 ###
 
 POST http://localhost:3000/books
 Content-Type: application/json
-Authorization: Bearer <token>
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJ0ZXN0X3VzZXIiLCJlbWFpbCI6ImV4YW1wbGVAeWFuZGV4LnJ1Iiwicm9sZSI6InJlYWRlciIsImlhdCI6MTcyMDc3NDU4MSwiZXhwIjoxNzIwODYwOTgxLCJzdWIiOiJ1c2VySW5mbyJ9.Rh4Mx43EcFRcvIgBWnA_Z3cmr5PQRufC1xi1u-546ng
 
 { 
     "title": "Война и мир", 
@@ -50,7 +50,7 @@ GET http://localhost:3000/books/1
 
 PUT http://localhost:3000/books/1
 Content-Type: application/json
-Authorization: Bearer <token>
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJ0ZXN0X3VzZXIiLCJlbWFpbCI6ImV4YW1wbGVAeWFuZGV4LnJ1Iiwicm9sZSI6InJlYWRlciIsImlhdCI6MTcyMDc3NDU4MSwiZXhwIjoxNzIwODYwOTgxLCJzdWIiOiJ1c2VySW5mbyJ9.Rh4Mx43EcFRcvIgBWnA_Z3cmr5PQRufC1xi1u-546ng
 
 { 
     "title": "Война и мир. Том 1", 
@@ -62,4 +62,4 @@ Authorization: Bearer <token>
 ###
 
 DELETE http://localhost:3000/books/1
-Authorization: Bearer <token>
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJ0ZXN0X3VzZXIiLCJlbWFpbCI6ImV4YW1wbGVAeWFuZGV4LnJ1Iiwicm9sZSI6InJlYWRlciIsImlhdCI6MTcyMDc3NDU4MSwiZXhwIjoxNzIwODYwOTgxLCJzdWIiOiJ1c2VySW5mbyJ9.Rh4Mx43EcFRcvIgBWnA_Z3cmr5PQRufC1xi1u-546ng

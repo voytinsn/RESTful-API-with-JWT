@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { User, UsersModel } from "../DB/models/usersModel";
 import { createSHA256Hash } from "../services/cryptoHelper";
 import { generateJWT, UserJwtPayload } from "../services/jwt";
+import { roleAdmin }  from "../rights";
 
 /**
  * Эндпоинт для авторизации
@@ -97,6 +98,7 @@ const register = (req: Request, res: Response) => {
     username: username,
     password: password,
     email: email,
+    role: roleAdmin,
   };
 
   validate()
@@ -133,6 +135,7 @@ const me = async (req: Request, res: Response) => {
       username: dbUser.username,
       email: dbUser.email,
       jwtExpireDate: expireDate,
+      role: dbUser.role,
     });
   } else {
     res.status(404);
