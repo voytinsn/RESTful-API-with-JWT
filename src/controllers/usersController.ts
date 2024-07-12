@@ -3,6 +3,7 @@ import { User, UsersModel } from "../DB/models/usersModel";
 import { createSHA256Hash } from "../services/cryptoHelper";
 import { generateJWT, UserJwtPayload } from "../services/jwt";
 import { roleAdmin, RolesMap } from "../rights";
+import { isEmailValid } from "../services/emailValidator";
 
 /**
  * Эндпоинт для авторизации
@@ -61,14 +62,22 @@ const register = (req: Request, res: Response) => {
     if (!username || !password || !email) {
       res.status(400);
       throw new Error("Username, password or email is not specified");
+    } else if (!isEmailValid(email)) {
+      res.status(400);
+      throw new Error("Email is invalid");
     }
   };
 
-  // Вызовет исключение, если пользователь с таким username уже существует
+  // Вызовет исключение, если пользователь с таким username или email уже существует
   const checkIbDb = async (newUser: User): Promise<User> => {
-    const dbUser = await UsersModel.getByUsername(newUser.username);
+    let dbUser = await UsersModel.getByUsername(newUser.username);
     if (dbUser !== null) {
       throw new Error("User with the specified name already exists");
+    }
+
+    dbUser = await UsersModel.getByEmail(newUser.email);
+    if (dbUser !== null) {
+      throw new Error("User with the email address already exists");
     }
     return newUser;
   };

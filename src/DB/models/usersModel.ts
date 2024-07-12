@@ -54,6 +54,27 @@ export class UsersModel {
   }
 
   /**
+   * Находит в БД пользователя по его email
+   *
+   * @param username
+   */
+  static async getByEmail(email: string): Promise<User | null> {
+    const query: string = `
+      select *
+      from ${this.tableName}
+      where email = '${email}'
+    `;
+
+    const rows: User[] = await DbConnector.instance.executeQuery<User>(query);
+
+    if (rows.length === 1) {
+      return rows[0];
+    } else {
+      return null;
+    }
+  }
+
+  /**
    * Находит в БД пользователя по id
    *
    * @param username
