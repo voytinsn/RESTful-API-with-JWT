@@ -61,6 +61,32 @@ export class BooksModel {
   }
 
   /**
+   * Обновляет запись о книге в БД
+   *
+   * @param book
+   */
+  static async update(book: Book): Promise<void> {
+    const genresJson = JSON.stringify(book.genres);
+
+    let publicationDate = "NULL";
+
+    if (book.publicationDate) {
+      publicationDate = `'${book.publicationDate.toISOString()}'`;
+    }
+
+    const query: string = `
+      UPDATE "${this.tableName}" 
+      SET title='${book.title}',
+          author='${book.author}',
+          genres='${genresJson}',
+          publication_date=${publicationDate}
+      WHERE id = ${book.id};
+    `;
+
+    return await DbConnector.instance.executeNonQuery(query);
+  }
+
+  /**
    * Получает все книги из БД
    *
    * @returns

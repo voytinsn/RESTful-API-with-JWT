@@ -4,7 +4,7 @@ POST http://localhost:3000/users/register
 Content-Type: application/json
 
 {
-    "username": "test_user2",
+    "username": "test_user",
     "password": "Aa123456",
     "email": "example@yandex.ru"
 }
@@ -45,3 +45,16 @@ GET http://localhost:3000/books
 ###
 
 GET http://localhost:3000/books/1
+
+###
+
+PUT http://localhost:3000/books/1
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{ 
+    "title": "Война и мир. Том 1", 
+    "author": "Лев Толстой", 
+    "publicationDate": "1867-01-01", 
+    "genres": [ "Роман", "Историческая проза", "Исторический жанр"]
+}

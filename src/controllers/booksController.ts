@@ -121,7 +121,7 @@ const getAll = (req: Request, res: Response) => {
  * @param res
  */
 const getById = (req: Request, res: Response) => {
-  let id: number = Number(req.params["id"]);
+  const id: number = Number(req.params["id"]);
 
   const validate = async () => {
     if (isNaN(id) || id < 1) {
@@ -158,4 +158,71 @@ const getById = (req: Request, res: Response) => {
   validate().then(getBook).then(respond).catch(onError);
 };
 
-export default { add, getAll, getById };
+/**
+ * Эндпоинт для обновления данных о книге
+ *
+ * @param req
+ * @param res
+ */
+const update = (req: Request, res: Response) => {
+  const id: number = Number(req.params["id"]);
+  const { title, author, publicationDate, genres } = req.body;
+
+  const validate = async () => {
+    res.status(400);
+
+    if (isNaN(id) || id < 1) {
+      throw new Error("Wrong id");
+    } else if (!title || !author || !genres) {
+      throw new Error("Title, author or genres is not specified");
+    } else if (publicationDate && !isDateValid(publicationDate)) {
+      throw new Error("Invalid publicationDate value");
+    } else {
+      res.status(200);
+    }
+  };
+
+  const checkInDb = async () => {
+    const book: Book | null = await BooksModel.getById(id);
+
+    if (!book) {
+      res.status(404);
+      throw new Error("Book with specified id was not found");
+    }
+  };
+
+  const updateBookInDb = async (book: Book) => {
+    BooksModel.update(book);
+    return book;
+  };
+
+  const respond = (book: Book) => {
+    res.json(book);
+  };
+
+  const onError = (error: Error) => {
+    if (res.statusCode == 200) {
+      res.status(500);
+    }
+
+    res.json({
+      message: error.message,
+    });
+  };
+
+  const book: Book = {
+    id: id,
+    title: title,
+    author: author,
+    publicationDate: publicationDate ? new Date(publicationDate) : null,
+    genres: genres,
+  };
+
+  validate()
+    .then(checkInDb)
+    .then(() => updateBookInDb(book))
+    .then(respond)
+    .catch(onError);
+};
+
+export default { add, getAll, getById, update };
