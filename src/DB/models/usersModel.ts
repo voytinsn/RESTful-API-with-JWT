@@ -21,7 +21,6 @@ export class UsersModel {
       select *
       from ${this.tableName}
       where username = '${username}'
-      limit 1
     `;
 
     const rows: User[] = await DbConnector.instance.executeQuery<User>(query);

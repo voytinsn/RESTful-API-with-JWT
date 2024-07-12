@@ -3,9 +3,9 @@ import { Book, BooksModel } from "../DB/models/booksModel";
 
 /**
  * Проверяет валидность даты
- * 
- * @param dateString 
- * @returns 
+ *
+ * @param dateString
+ * @returns
  */
 function isDateValid(dateString: string): boolean {
   const date = new Date(dateString);
@@ -35,13 +35,19 @@ const add = (req: Request, res: Response) => {
     }
   };
 
-  // Вызовет исключение, если книга с таким название уже существует
+  // Вызовет исключение, если книга с таким названием и автором уже существует
   const checkIbDb = async (book: Book): Promise<Book> => {
-    const dbBook = await BooksModel.getByTitle(book.title);
-    if (dbBook !== null) {
-      res.status(409);
-      throw new Error("Book with the specified title already exists");
-    }
+    const dbBooks: Book[] = await BooksModel.findByTitle(book.title);
+
+    dbBooks.forEach((dbBook) => {
+      if (dbBook.author === author && dbBook.title === title) {
+        res.status(409);
+        throw new Error(
+          "Book with the specified title and author already exists"
+        );
+      }
+    });
+
     return book;
   };
 
@@ -86,11 +92,11 @@ const add = (req: Request, res: Response) => {
 
 /**
  * Эндпоинт для получения списка книг
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
-const getAll = async (req: Request, res: Response) => {
+const getAll = (req: Request, res: Response) => {
   const respond = (books: Book[]) => {
     res.json(books);
   };
@@ -108,4 +114,48 @@ const getAll = async (req: Request, res: Response) => {
   BooksModel.getAll().then(respond).catch(onError);
 };
 
-export default { add, getAll };
+/**
+ * Эндпоинт для получения книги по id
+ *
+ * @param req
+ * @param res
+ */
+const getById = (req: Request, res: Response) => {
+  let id: number = Number(req.params["id"]);
+
+  const validate = async () => {
+    if (isNaN(id) || id < 1) {
+      res.status(400);
+      throw new Error("Wrong id");
+    }
+  };
+
+  const getBook = async () => {
+    const book: Book | null = await BooksModel.getById(id);
+
+    if (!book) {
+      res.status(404);
+      throw new Error("Book with specified id was not found");
+    }
+
+    return book;
+  };
+
+  const respond = (book: Book) => {
+    res.json(book);
+  };
+
+  const onError = (error: Error) => {
+    if (res.statusCode == 200) {
+      res.status(500);
+    }
+
+    res.json({
+      message: error.message,
+    });
+  };
+
+  validate().then(getBook).then(respond).catch(onError);
+};
+
+export default { add, getAll, getById };

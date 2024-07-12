@@ -13,7 +13,7 @@ export class BooksModel {
   static tableName: string = "books";
 
   /**
-   * Создает таблицы books и books_authors
+   * Создает таблицу books
    */
   static async initTable() {
     // Создание таблицы books
@@ -60,14 +60,73 @@ export class BooksModel {
     return rows[0].id;
   }
 
+  /**
+   * Получает все книги из БД
+   *
+   * @returns
+   */
   static async getAll(): Promise<Book[]> {
     const query: string = `
-    select *
-    from ${this.tableName}
-  `;
+      select *
+      from ${this.tableName}
+    `;
 
     const rows: ResultRecord[] = await DbConnector.instance.executeQuery(query);
+    return this.rowsToBooks(rows);
+  }
 
+  /**
+   * Находит книги по названию,
+   * разные авторы могут иметь книги с
+   * одинаковым названием
+   *
+   * @param bookTitle
+   */
+  static async findByTitle(bookTitle: string): Promise<Book[]> {
+    const query: string = `
+        select *
+        from ${this.tableName}
+        where title = '${bookTitle}'
+      `;
+
+    const rows: ResultRecord[] =
+      await DbConnector.instance.executeQuery<ResultRecord>(query);
+
+    return this.rowsToBooks(rows);
+  }
+
+  /**
+   * Получает из БД книгу по id
+   *
+   * @param id
+   * @returns
+   */
+  static async getById(id: number): Promise<Book | null> {
+    const query: string = `
+      select *
+      from ${this.tableName}
+      where id = '${id}'
+    `;
+
+    const rows: ResultRecord[] =
+      await DbConnector.instance.executeQuery<ResultRecord>(query);
+
+    const books: Book[] = this.rowsToBooks(rows);
+
+    if (rows.length === 1) {
+      return books[0];
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Преобразовывает ResultRecord[] в Book[]
+   *
+   * @param rows
+   * @returns
+   */
+  static rowsToBooks(rows: ResultRecord[]): Book[] {
     let books: Book[] = [];
 
     rows.forEach((element) => {
@@ -83,27 +142,5 @@ export class BooksModel {
     });
 
     return books;
-  }
-
-  /**
-   * Находит в БД книгу по ее title
-   *
-   * @param bookTitle
-   */
-  static async getByTitle(bookTitle: string): Promise<Book | null> {
-    const query: string = `
-        select *
-        from ${this.tableName}
-        where title = '${bookTitle}'
-        limit 1
-      `;
-
-    const rows: Book[] = await DbConnector.instance.executeQuery<Book>(query);
-
-    if (rows.length === 1) {
-      return rows[0];
-    } else {
-      return null;
-    }
   }
 }
