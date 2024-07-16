@@ -1,16 +1,6 @@
 import { Request, Response } from "express";
 import { Book, BooksModel } from "../DB/models/booksModel";
-
-/**
- * Проверяет валидность даты
- *
- * @param dateString
- * @returns
- */
-function isDateValid(dateString: string): boolean {
-  const date = new Date(dateString);
-  return !isNaN(date.getTime());
-}
+import { isDateValid } from "../services/dateValidator";
 
 /**
  * Эндпоинт для добавления книги

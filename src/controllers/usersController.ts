@@ -35,7 +35,7 @@ const login = (req: Request, res: Response) => {
   };
 
   const onError = (error: Error) => {
-    res.status(403).json({
+    res.status(401).json({
       message: error.message,
     });
   };
@@ -77,7 +77,7 @@ const register = (req: Request, res: Response) => {
 
     dbUser = await UsersModel.getByEmail(newUser.email);
     if (dbUser !== null) {
-      throw new Error("User with the email address already exists");
+      throw new Error("User with the specified email address already exists");
     }
     return newUser;
   };
