@@ -41,21 +41,15 @@ export class BooksModel {
   static async addBook(book: Book): Promise<number> {
     const genresJson = JSON.stringify(book.genres);
 
-    let publicationDate = "NULL";
-
-    if (book.publicationDate) {
-      publicationDate = `'${book.publicationDate.toISOString()}'`;
-    }
-
     const query: string = `
       INSERT INTO "${this.tableName}" ("title", "author", "genres", "publication_date")
-      VALUES ('${book.title}', '${book.author}', '${genresJson}', ${publicationDate})
+      VALUES ($1, $2, $3, $4)
       RETURNING id;
     `;
 
     const rows: { id: number }[] = await DbConnector.instance.executeQuery<{
       id: number;
-    }>(query);
+    }>(query, [book.title, book.author, genresJson, book.publicationDate]);
 
     return rows[0].id;
   }
@@ -76,14 +70,20 @@ export class BooksModel {
 
     const query: string = `
       UPDATE "${this.tableName}" 
-      SET title='${book.title}',
-          author='${book.author}',
-          genres='${genresJson}',
-          publication_date=${publicationDate}
-      WHERE id = ${book.id};
+      SET title=$1,
+          author=$2,
+          genres=$3,
+          publication_date=$4
+      WHERE id = $5;
     `;
 
-    return await DbConnector.instance.executeNonQuery(query);
+    return await DbConnector.instance.executeNonQuery(query, [
+      book.title,
+      book.author,
+      genresJson,
+      book.publicationDate,
+      book.id,
+    ]);
   }
 
   /**
@@ -95,10 +95,10 @@ export class BooksModel {
   static async deleteById(id: number): Promise<void> {
     const query: string = `
       DELETE FROM "${this.tableName}" 
-      WHERE id = ${id};
+      WHERE id = $1;
     `;
 
-    return await DbConnector.instance.executeNonQuery(query);
+    return await DbConnector.instance.executeNonQuery(query, [id]);
   }
 
   /**
@@ -127,11 +127,11 @@ export class BooksModel {
     const query: string = `
         select *
         from ${this.tableName}
-        where title = '${bookTitle}'
+        where title = $1
       `;
 
     const rows: ResultRecord[] =
-      await DbConnector.instance.executeQuery<ResultRecord>(query);
+      await DbConnector.instance.executeQuery<ResultRecord>(query, [bookTitle]);
 
     return this.rowsToBooks(rows);
   }
@@ -146,11 +146,11 @@ export class BooksModel {
     const query: string = `
       select *
       from ${this.tableName}
-      where id = '${id}'
+      where id = $1
     `;
 
     const rows: ResultRecord[] =
-      await DbConnector.instance.executeQuery<ResultRecord>(query);
+      await DbConnector.instance.executeQuery<ResultRecord>(query, [id]);
 
     const books: Book[] = this.rowsToBooks(rows);
 

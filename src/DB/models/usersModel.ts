@@ -41,10 +41,12 @@ export class UsersModel {
     const query: string = `
       select *
       from ${this.tableName}
-      where username = '${username}'
+      where username = $1
     `;
 
-    const rows: User[] = await DbConnector.instance.executeQuery<User>(query);
+    const rows: User[] = await DbConnector.instance.executeQuery<User>(query, [
+      username,
+    ]);
 
     if (rows.length === 1) {
       return rows[0];
@@ -62,10 +64,12 @@ export class UsersModel {
     const query: string = `
       select *
       from ${this.tableName}
-      where email = '${email}'
+      where email = $1
     `;
 
-    const rows: User[] = await DbConnector.instance.executeQuery<User>(query);
+    const rows: User[] = await DbConnector.instance.executeQuery<User>(query, [
+      email,
+    ]);
 
     if (rows.length === 1) {
       return rows[0];
@@ -83,10 +87,12 @@ export class UsersModel {
     const query: string = `
         select *
         from ${this.tableName}
-        where id = ${id}
+        where id = $1
       `;
 
-    const rows: User[] = await DbConnector.instance.executeQuery<User>(query);
+    const rows: User[] = await DbConnector.instance.executeQuery<User>(query, [
+      id,
+    ]);
 
     if (rows.length === 1) {
       return rows[0];
@@ -110,13 +116,13 @@ export class UsersModel {
 
     const query: string = `
       INSERT INTO "users" ("username", "password", "email", "role")
-      VALUES ('${user.username}', '${passHash}', '${user.email}', '${roleAdmin}')
+      VALUES ($1, $2, $3, $4)
       RETURNING id;
     `;
 
     const rows: { id: number }[] = await DbConnector.instance.executeQuery<{
       id: number;
-    }>(query);
+    }>(query, [user.username, passHash, user.email, roleAdmin]);
 
     return rows[0].id;
   }
@@ -129,12 +135,17 @@ export class UsersModel {
   static async updateUser(user: User): Promise<void> {
     const query: string = `
       UPDATE "${this.tableName}" 
-      SET username='${user.username}',
-          email='${user.email}',
-          role='${user.role}'
-      WHERE id = ${user.id};
+      SET username=$1,
+          email=$2,
+          role=$3
+      WHERE id=$4;
     `;
 
-    return await DbConnector.instance.executeNonQuery(query);
+    return await DbConnector.instance.executeNonQuery(query, [
+      user.username,
+      user.email,
+      user.role,
+      user.id,
+    ]); 
   }
 }

@@ -182,7 +182,7 @@ const update = (req: Request, res: Response) => {
   };
 
   const updateBookInDb = async (book: Book) => {
-    BooksModel.update(book);
+    await BooksModel.update(book);
     return book;
   };
 

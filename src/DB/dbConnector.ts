@@ -70,11 +70,14 @@ class DbConnector {
    * @param query
    * @returns
    */
-  async executeQuery<T = ResultRecord>(query: string): Promise<T[]> {
+  async executeQuery<T = ResultRecord>(
+    query: string,
+    values?: any[]
+  ): Promise<T[]> {
     const client: Client = await connect(this.Configuration);
 
     try {
-      const result = client.query<T>(query);
+      const result = client.query<T>(query, values);
 
       let rows: Array<T> = [];
 
@@ -93,11 +96,11 @@ class DbConnector {
    *
    * @param query
    */
-  async executeNonQuery(query: string): Promise<void> {
+  async executeNonQuery(query: string, values?: any[]): Promise<void> {
     const client: Client = await connect(this.Configuration);
 
     try {
-      client.query(query);
+      await client.query(query, values);
     } finally {
       await client.end();
     }

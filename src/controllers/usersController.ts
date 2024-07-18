@@ -192,7 +192,7 @@ const updateRole = (req: Request, res: Response) => {
   };
 
   const updateUserInDb = async (user: User): Promise<User> => {
-    UsersModel.updateUser(user);
+    await UsersModel.updateUser(user);
     return user;
   };
 
